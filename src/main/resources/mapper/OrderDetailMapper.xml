@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digitalchina.mscx.mgr.order.dao.OrderDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.digitalchina.mscx.mgr.order.domain.OrderDetail" >
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="resource_id" jdbcType="INTEGER" property="resourceId" />
+    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+    <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
+    <result column="charge_rule_id" jdbcType="INTEGER" property="chargeRuleId" />
+    <result column="charge_rule_name" jdbcType="VARCHAR" property="chargeRuleName" />
+    <result column="charge_rule_des" jdbcType="VARCHAR" property="chargeRuleDes" />
+    <result column="charge_rule_type" jdbcType="VARCHAR" property="chargeRuleType" />
+    <result column="item_cash" jdbcType="DOUBLE" property="itemCash" />
+    <result column="item_number" jdbcType="INTEGER" property="itemNumber" />
+    <result column="item_cash_total" jdbcType="DOUBLE" property="itemCashTotal" />
+    <result column="area" jdbcType="VARCHAR" property="area" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="created_by" jdbcType="VARCHAR" property="createdBy" />
+    <result column="udpated_time" jdbcType="TIMESTAMP" property="udpatedTime" />
+    <result column="updated_by" jdbcType="VARCHAR" property="updatedBy" />
+    <result column="defaul_time" jdbcType="INTEGER" property="defaulTime" />
+    <result column="resource_delay_time" jdbcType="INTEGER" property="resourceDelayTime" />
+    <result column="is_free" jdbcType="TINYINT" property="isFree" />
+    <result column="pay_type" jdbcType="VARCHAR" property="payType" />
+    <result column="order_user_id" jdbcType="VARCHAR" property="orderUserId" />
+    <result column="order_user_name" jdbcType="VARCHAR" property="orderUserName" />
+    <result column="create_user_id" jdbcType="VARCHAR" property="createUserId" />
+    <result column="order_num" jdbcType="VARCHAR" property="orderNum" />
+    <result column="unit_price" jdbcType="VARCHAR" property="unitPrice" />
+    <result column="source_json" jdbcType="VARCHAR" property="sourceJson" />
+  </resultMap>
+
+  <resultMap id="SourceUserIdCont" type="com.digitalchina.mscx.mgr.order.dto.SourceIdCountDto">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_num" jdbcType="INTEGER" property="userNum" />
+    <result column="apply_num" jdbcType="INTEGER" property="applyNum" />
+    <result column="resource_id" jdbcType="INTEGER" property="resourceId" />
+    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+  </resultMap>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from order_detail
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <insert id="insert" parameterType="com.digitalchina.mscx.mgr.order.domain.OrderDetail" >
+   insert into order_detail (order_id, resource_id,
+      resource_type, resource_name, charge_rule_id,
+      charge_rule_name, charge_rule_des, charge_rule_type,
+      item_cash, item_number, item_cash_total,
+      area, created_time, created_by,
+      udpated_time, updated_by, defaul_time,
+      resource_delay_time,is_free,pay_type,order_user_id,order_user_name,create_user_id,order_num,unit_price,source_json)
+    values (#{orderId,jdbcType=INTEGER}, #{resourceId,jdbcType=INTEGER},
+      #{resourceType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, #{chargeRuleId,jdbcType=INTEGER},
+      #{chargeRuleName,jdbcType=VARCHAR}, #{chargeRuleDes,jdbcType=VARCHAR}, #{chargeRuleType,jdbcType=VARCHAR},
+      #{itemCash,jdbcType=DOUBLE}, #{itemNumber,jdbcType=INTEGER}, #{itemCashTotal,jdbcType=DOUBLE},
+      #{area,jdbcType=VARCHAR}, #{createdTime,jdbcType=TIMESTAMP}, #{createdBy,jdbcType=VARCHAR},
+      #{udpatedTime,jdbcType=TIMESTAMP}, #{updatedBy,jdbcType=VARCHAR}, #{defaulTime,jdbcType=INTEGER},
+      #{resourceDelayTime,jdbcType=INTEGER},
+      #{isFree,jdbcType=TINYINT},#{payType,jdbcType=VARCHAR},#{orderUserId,jdbcType=VARCHAR},#{orderUserName,jdbcType=VARCHAR},
+      #{createUserId,jdbcType=VARCHAR},#{orderNum,jdbcType=VARCHAR},#{unitPrice,jdbcType=VARCHAR},#{sourceJson,jdbcType=VARCHAR}
+      )
+  </insert>
+  <select id="getById" parameterType="int" resultMap="BaseResultMap">
+    SELECT * FROM order_detail where order_id = #{orderId}
+  </select>
+  <select id="findOrderDetailByDetailId" parameterType="int" resultMap="BaseResultMap">
+    SELECT * FROM order_detail where id = #{orderDetailId}
+  </select>
+
+
+  <!--获取购买成功后资源数 包括对数据 api的统计-->
+  <select id="getCountSource"  resultMap="SourceUserIdCont">
+    select resource_type,resource_id,count(*) as apply_num,count(distinct order_user_id) as user_num from order_detail where 1=1 group by resource_id;
+  </select>
+
+
+  <!--获取统计数-->
+  <select id="getOrderDetailByUserIds" parameterType="HashMap" resultType="HashMap">
+    select resource_id as resourceId,count(distinct order_user_id)as applyUserCount,count(resource_id)as applyCount
+    from order_detail WHERE 1=1
+    <if test="dataIds!=null and dataIds!=''">
+      AND resource_id IN
+      <foreach collection="dataIds" item="dataId" index="index" open="(" separator="," close=")">
+        #{dataId}
+      </foreach>
+    </if> GROUP BY resource_id;
+  </select>
+
+
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.mscx.mgr.order.dao.RouterRuleMapper">
+  <resultMap id="BaseResultMap" type="com.digitalchina.mscx.mgr.order.domain.RouterRule">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_detail_id" jdbcType="INTEGER" property="orderDetailId" />
+    <result column="effective_time" jdbcType="TIMESTAMP" property="effectiveTime" />
+    <result column="ineffective_time" jdbcType="TIMESTAMP" property="ineffectiveTime" />
+    <result column="effective_number" jdbcType="INTEGER" property="effectiveNumber" />
+    <result column="area" jdbcType="VARCHAR" property="area" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="created_by" jdbcType="VARCHAR" property="createdBy" />
+    <result column="udpated_time" jdbcType="TIMESTAMP" property="udpatedTime" />
+    <result column="updated_by" jdbcType="VARCHAR" property="updatedBy" />
+    <result column="create_user_id" jdbcType="VARCHAR" property="createUserId" />
+    <result column="order_user_id" jdbcType="VARCHAR" property="orderUserId" />
+    <result column="source_id" jdbcType="INTEGER" property="sourceId" />
+    <result column="source_type" jdbcType="VARCHAR" property="sourceType" />
+    <result column="source_status" jdbcType="VARCHAR" property="sourceStatus" />
+    <result column="order_num" jdbcType="VARCHAR" property="orderNum" />
+  </resultMap>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from router_rule
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <insert id="insert" parameterType="com.digitalchina.mscx.mgr.order.domain.RouterRule" >
+    insert into router_rule (id, order_detail_id, effective_time, 
+      ineffective_time, effective_number, area, 
+      created_time, created_by, udpated_time, 
+      updated_by, create_user_id,source_id)
+    values (#{id,jdbcType=INTEGER}, #{orderDetailId,jdbcType=INTEGER}, #{effectiveTime,jdbcType=TIMESTAMP}, 
+      #{ineffectiveTime,jdbcType=TIMESTAMP}, #{effectiveNumber,jdbcType=INTEGER}, #{area,jdbcType=VARCHAR}, 
+      #{createdTime,jdbcType=TIMESTAMP}, #{createdBy,jdbcType=VARCHAR}, #{udpatedTime,jdbcType=TIMESTAMP}, 
+      #{updatedBy,jdbcType=VARCHAR}, #{createUserId,jdbcType=VARCHAR},#{sourceId,jdbcType=INTEGER})
+  </insert>
+
+  <select id="getRouterRule" parameterType="java.util.HashMap" resultMap="BaseResultMap">
+    SELECT * FROM router_rule
+    where 1=1
+    <if test="orderDetailId!= null">
+      AND order_detail_id = #{orderDetailId}
+    </if>
+    <if test="startTime!= null">
+      AND effective_time &gt;=#{startTime}
+    </if>
+  </select>
+
+  <!--根据订单单号 获取路由-->
+  <select id="getRouterRuleByOrderNum"   parameterType="String"  resultMap="BaseResultMap">
+    SELECT * FROM router_rule where order_num = #{orderNum}
+  </select>
+</mapper>

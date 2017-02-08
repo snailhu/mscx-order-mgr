@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Matrix Admin</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="../static/css/bootstrap-responsive.min.css" th:href="@{/css/bootstrap-responsive.min.css}"/>
+    <link rel="stylesheet" href="../static/css/matrix-style.css" th:href="@{/css/matrix-style.css}"/>
+    <!--日历样式-->
+    <link rel="stylesheet" href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" href="../static/css/daterangepicker-bs3.css" th:href="@{/css/daterangepicker-bs3.css}"/>
+    <!--基本样式-->
+    <link rel="stylesheet" href="../static/css/common.css" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+
+
+</head>
+<body>
+<div class="container-fluid pt20">
+    <div class="container-title clearfix">
+        <h3 class="fl">交易付款查询</h3>
+    </div>
+
+    <table style="width: 100%" class="attr-table">
+        <tr>
+            <td>
+                <label class="control-label">
+                    类型
+                </label>
+                <select id="serviceArea" class="input-select150">
+                    <option value="1">订单线下付款</option>
+                    <option value="2">订单线上付款</option>
+                    <option value="3">合同付款</option>
+                    <option value="4">结算付款</option>
+                </select>
+            </td>
+            <td>
+                <label class="control-label">
+                    付款方
+                </label>
+                <input id = "payer" type="text" class="input-text150" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label control-label2">
+                    起止日期
+                </label>
+                <input type="text" id="orderStartTime" class="orderStartTime form-control" value="2016-11-11" />
+            </td>
+            <td>
+                <label class="control-label control-label2">
+                    结束日期
+                </label>
+                <input type="text" id="orderEndTime" class="orderEndTime form-control" value="2016-12-15" />
+            </td>
+            <td>
+                <button type="button" id="" class="search-btn-style active" onclick="find_log()" >查询</button>
+                <button type="button" id="" class="search-btn-style ">重置</button>
+            </td>
+        </tr>
+    </table>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="widget-box">
+                <div class="widget-content nopadding">
+                    <table class="table table-bordered with-check">
+                        <thead>
+                        <tr>
+                            <th width="10%" style="text-align: center;">序号</th>
+                            <th width="20%" style="text-align: center;">使用方（付款方）</th>
+                            <th width="10%" style="text-align: center;">金额</th>
+                            <th width="15%" style="text-align: center;">日期</th>
+                            <th width="10%" style="text-align: center;">类型</th>
+                            <th width="15%" style="text-align: center;">订单号</th>
+                            <th width="15%" style="text-align: center;">登记人</th>
+                        </tr>
+
+                        </thead>
+                        <tbody id="dataList">
+                        <tr>
+                            <td>1</td>
+                            <td>神州数码</td>
+                            <td>50万</td>
+                            <td>20161020</td>
+                            <td>合同付款</td>
+                            <td>201601170001</td>
+                            <td>1号柜员</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+<script src="../static/js/jquery.ui.custom.js"  th:src="@{/js/jquery.ui.custom.js}"></script>
+<script src="../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../static/js/jquery.dataTables.min.js" th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script src="../static/js/matrix.js" th:src="@{/js/matrix.js}"></script>
+<script src="../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script src="../static/js/create-delete-div.js" th:src="@{/js/create-delete-div.js}"></script>
+<script src="../static/layer/layer.js" th:src="@{/layer/layer.js}"></script>
+<!--日历js-->
+<script src="../static/js/dataPicker/moment.js" th:src="@{/js/dataPicker/moment.js}"></script>
+<script src="../static/js/dataPicker/daterangepicker.js" th:src="@{/js/dataPicker/daterangepicker.js}"></script>
+<script src="../static/js/localcompose/common.js" th:src="@{/js/localcompose/common.js}"></script>
+<script type="text/javascript">
+    //日历
+    $('.orderStartTime').daterangepicker(  {
+        singleDatePicker: true,
+        startDate: moment()
+    });
+
+    $('.orderEndTime').daterangepicker(  {
+        singleDatePicker: true,
+        startDate: moment()
+    });
+    function find_log(){
+        var startTime = $("#orderStartTime").val();
+        var endTime= $("#orderEndTime").val();
+
+        ajaxCommonFun({
+            type: 'POST',
+            url: '/paylog/getPayLogList',
+            data: {
+                "payer":$("#payer").val(),
+                "payType":$("#serviceArea").val(),
+                "startTime":startTime,
+                "endTime":endTime
+            },
+            success: function (data) {
+                var dataMpa = data.payLogList;
+                $("#dataList").html("");
+                dataMpa.forEach(function(e){
+                    $("#dataList").append('<tr>'+
+                            '<td >'+e.id+'</td>'+
+                            '<td >'+e.payer+'</td>'+
+                            '<td >'+e.payCount+'</td>'+
+                            '<td >'+e.payDate+'</td>'+
+                            '<td >'+e.payType+'</td>'+
+                            '<td >'+e.orderNum+'</td>'+
+                            '<td >'+e.createdBy+'</td>'+
+                            '</tr>');
+                })
+            }
+        });
+
+//        $.post("http://localhost:8081/paylog/getPayLogList",
+//                {
+//                    "payer":$("#payer").val(),
+//                    "payType":$("#serviceArea").val(),
+//                    "startTime":"2016-12-02",
+//                    "endTime":"2016-12-04"
+//                },function(data){
+//                    var dataMpa = data.payLogList;
+//                    $("#dataList").html("");
+//                    dataMpa.forEach(function(e){
+//                        $("#dataList").append('<tr>'+
+//                                '<td >'+e.id+'</td>'+
+//                                '<td >'+e.payer+'</td>'+
+//                                '<td >'+e.payCount+'</td>'+
+//                                '<td >'+e.payDate+'</td>'+
+//                                '<td >'+e.payType+'</td>'+
+//                                '<td >'+e.orderNum+'</td>'+
+//                                '<td >'+e.createdBy+'</td>'+
+//                                '</tr>');
+//                    })
+//                })
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Matrix Admin</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link rel="stylesheet" href="../static/lib/css/bootstrap.min.css" th:href="@{/lib/css/bootstrap.min.css}"/>
+	<link rel="stylesheet" href="../static/lib/css/common.css" th:href="@{/lib/css/common.css}">
+	
+	<!--日历样式-->
+    <link rel="stylesheet" href="../static/lib/css/datapicker/font-awesome.min.css" th:href="@{/lib/css/datapicker/font-awesome.min.css}"/>
+    <link rel="stylesheet" href="../static/lib/css/datapicker/daterangepicker-bs3.css" th:href="@{/lib/css/datapicker/daterangepicker-bs3.css}"/>
+
+</head>
+<body>
+<div class="container-fluid pt20">
+    <div class="container-title clearfix">
+        <h3 class="fl">交易付款查询</h3>
+    </div>
+    <form>
+    <table class="attr-table mt20">
+        <tr>
+            <td>
+                <label class="control-label">
+                    类型:
+                </label>
+                <div class="dropdown-select fl">
+                    <input type="text" value="订单线下付款" data="1" class="dropdown-toggle" data-toggle="dropdown" id="serviceArea" readonly/><span class="caret"></span>
+                    <ul class="dropdown-menu status" role="menu" aria-labelledby="dropdownMenu">
+                        <li data="1">
+                            <a tabindex = "-1" href="#" role="menuitem">订单线下付款</a>
+                        </li>
+                        <li data="2">
+                            <a tabindex = "-1" href="#" role="menuitem">订单线上付款</a>
+                        </li>
+                        <li data="3">
+                            <a tabindex = "-1" href="#" role="menuitem">合同付款</a>
+                        </li>
+                        <li data="4">
+                            <a tabindex = "-1" href="#" role="menuitem">结算付款</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!--<select id="serviceArea" class="input-select150">-->
+                    <!--<option value="1">订单线下付款</option>-->
+                    <!--<option value="2">订单线上付款</option>-->
+                    <!--<option value="3">合同付款</option>-->
+                    <!--<option value="4">结算付款</option>-->
+                <!--</select>-->
+            </td>
+            <td>
+                <label class="control-label">
+                    付款方:
+                </label>
+                <input id = "payer" type="text" class="input-text150" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">
+                    付款时间:
+                </label>
+                <input type="text" id="searchTimeRange" class="form-control" readonly>
+                <input type="hidden" id="orderStartTime" class="orderStartTime" name="startDate">
+                <input type="hidden" id="orderEndTime"class="orderEndTime" name="endDate">
+            </td>
+
+            <td>
+                <button type="button" class="query-btn" id="findPayLogList" >查询</button>
+                <button type="reset" class="reset-btn "  onclick="doReset()">重置</button>
+            </td>
+        </tr>
+    </table>
+    </form>
+    <div class="row-fluid" id="showPayLog">
+
+    </div>
+    <!---->
+    <div id="pageAllCountLog"      class="mt20 text-right"></div>
+</div>
+
+<!-- 公共部分 -->
+<script src="../../static/lib/js/jquery.1.11.1.min.js" th:src="@{/lib/js/jquery.1.11.1.min.js}"></script>
+<script src="../../static/lib/js/bootstrap.min.js" th:src="@{/lib/js/bootstrap.min.js}"></script>
+<script th:src="${upms.url}+'/scripts/common.js' "></script>
+<script th:src="${upms.url}+'/scripts/createArea.js' "></script>
+<!--日历js-->
+<script src="../static/lib/dataPicker/moment.js" th:src="@{/lib/dataPicker/moment.js}"></script>
+<script src="../static/lib/dataPicker/daterangepicker.js" th:src="@{/lib/dataPicker/daterangepicker.js}"></script>
+<!-- 弹出框 -->
+<script src="../static/lib/layer/layer.js" th:src="@{/lib/layer/layer.js}"></script>
+<!--<script src="../static/lib/layPage/laypage.js" th:src="@{/lib/layPage/laypage.js}"></script>-->
+<script src="../static/js/payLog.js" th:src="@{/js/payLog.js}"></script>
+<script type="text/javascript" th:src="${upms.url}+'/assets/layPage/src/laypage.dev.js'"></script>
+<script th:inline="javascript">
+    $(function () {
+        DataList();
+    });
+    function doReset(){
+        $("#serviceArea").attr("data","1")
+        $("#orderStartTime").val("");
+        $("#orderEndTime").val("");
+    }
+</script>
+</body>
+</html>

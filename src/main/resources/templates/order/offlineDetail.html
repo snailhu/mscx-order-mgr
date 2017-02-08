@@ -1,0 +1,57 @@
+<form class="form-horizontal mt20 " id="meetDetail">
+    <div class="control-group">
+        <label class="control-label"><em class="red pd8">*</em>资源类型：</label>
+        <div class="controls">
+            <div class="detailS" id="serviceObject" th:switch="${offlinDetail.type}">
+                <span th:case="'2'">数据API</span>
+                <span th:case="'3'">工具API</span>
+                <span th:case="'4'">模型API</span>
+                <span th:case="'5'">数据</span>
+                <span th:case="'6'">微服务</span>
+            </div>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label"><em class="red pd8">*</em>资源名称：</label>
+        <div class="controls">
+            <div class="detailS" id="name" th:text="${offlinDetail.cname}">数据名称</div>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="name"><em class="red pd8">*</em>资源需求：</label>
+        <div class="controls">
+            <div class="detailS" id="description" th:text="${offlinDetail.resReq}">数据描述</div>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="name"><em class="red pd8">*</em>使用意向：</label>
+        <div class="controls">
+            <div class="detailS" id="dataItem" th:text="${offlinDetail.purpose}">数据项</div>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="name"><em class="red pd8">*</em>申请日期：</label>
+        <div class="controls">
+            <div class="detailS" id="publishDate" th:text="${offlinDetail.createdTime}!=null?${#calendars.format(offlinDetail.createdTime,'yyyy-MM-dd')}:''"></div>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label"><em class="red pd8">*</em>联系人：</label>
+        <div class="controls">
+            <div class="detailS" id="File" th:text="${offlinDetail.contact}">admin</div>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label"><em class="red pd8">*</em>联系电话：</label>
+        <div class="controls">
+            <div class="detailS" id="demoFile" th:text="${offlinDetail.contactNo}">222222222</div>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label"><em class="red pd8">*</em>受理状态：</label>
+        <div class="controls">
+            <div class="detailS" id="charge" th:text="${offlinDetail.processFlag}=='0'?'未受理':'已受理'"></div>
+        </div>
+    </div>
+</form>

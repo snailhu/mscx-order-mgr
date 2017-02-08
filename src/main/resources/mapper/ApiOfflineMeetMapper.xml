@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.digitalchina.mscx.mgr.order.dao.ApiOfflineMeetMapper" >
+  <resultMap id="BaseResultMap" type="com.digitalchina.mscx.mgr.order.domain.ApiOfflineMeet" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="service_id" property="serviceId" jdbcType="INTEGER" />
+    <result column="res_req" property="resReq" jdbcType="VARCHAR" />
+    <result column="purpose" property="purpose" jdbcType="VARCHAR" />
+    <result column="contact" property="contact" jdbcType="VARCHAR" />
+    <result column="contact_no" property="contactNo" jdbcType="VARCHAR" />
+    <result column="created_time" property="createdTime" jdbcType="TIMESTAMP" />
+    <result column="created_by" property="createdBy" jdbcType="VARCHAR" />
+    <result column="updated_time" property="updatedTime" jdbcType="TIMESTAMP" />
+    <result column="type" property="type" jdbcType="CHAR" />
+    <result column="process_flag" property="processFlag" jdbcType="CHAR" />
+    <result column="cname" property="cname" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, service_id, res_req, purpose, contact, contact_no, created_time, created_by, 
+    updated_time, updated_by,type,cname
+  </sql>
+
+  <select id="selectApiOfflineMeets" parameterType="java.util.HashMap" resultMap="BaseResultMap">
+    SELECT * FROM api_offline_meet
+    <where>
+       <if test="applyUser!=null and applyUser!=''">
+         and contact LIKE CONCAT('%',#{applyUser},'%')
+      </if>
+
+      <if test="offlineId!=null and offlineId!=''">
+        and id = #{offlineId}
+      </if>
+
+    </where>
+    ORDER BY created_time desc  limit #{startIndex}, #{endIndex}
+  </select>
+
+  <select id="selectApiOfflineMeetCount" parameterType="java.util.HashMap" resultType="int">
+    SELECT count(1) FROM api_offline_meet
+    <where>
+      <if test="applyUser!=null and applyUser!=''">
+        and contact  LIKE CONCAT('%',#{applyUser},'%')
+      </if>
+    </where>
+
+  </select>
+
+ <update id="updateApiOfflineMeetSatus" parameterType="java.util.HashMap">
+   UPDATE api_offline_meet set process_flag=#{acceptType}, updated_by =#{updatedBy},updated_time=NOW()
+   where id=#{offlineId}
+ </update>
+
+</mapper>

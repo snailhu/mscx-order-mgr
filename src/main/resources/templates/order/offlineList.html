@@ -1,0 +1,67 @@
+
+    <div class="span12" >
+        <div class="widget-box">
+            <div class="widget-content nopadding" th:fragment="meetList" xmlns:th="http://www.thymeleaf.org">
+                <table class="table table-bordered with-check" id="dataTable">
+                    <thead>
+                    <tr>
+                        <th rowspan="2" width="5%">序号</th>
+                        <th rowspan="2" width="15%">申请时间</th>
+                        <th rowspan="2" width="10%">申请人</th>
+                        <th colspan="2" width="35%">涉及资源
+                        </th>
+                        <th rowspan="2" width="15%">联系方式</th>
+                        <th rowspan="2" width="10%">状态</th>
+                        <th rowspan="2" width="10%">操作</th>
+                    </tr>
+                    <tr>
+                        <th>资源类型</th>
+                        <th>资源名称</th>
+                    </tr>
+                    </thead>
+                    <tbody id="dataList" th:unless="${#lists.isEmpty(offlinMeets)}">
+
+                     <tr th:each="dataInfo,dataInfoStat: ${offlinMeets}">
+                        <td th:text="${dataInfoStat.index+1}" th:name="detail"></td>
+                        <td th:text="${#calendars.format(dataInfo.createdTime,'yyyy-MM-dd')}" >2016.7.12</td>
+                        <td >
+                            <span><a href='javascript:;'class='contact-detail' th:text="${dataInfo.contact}" th:data="${dataInfo.id}">admin</a></span>
+
+                        </td>
+                         <td>
+                             <span th:switch="${dataInfo.type}">
+                                <span th:case="'2'">数据API</span>
+                                <span th:case="'3'">工具API</span>
+                                <span th:case="'4'">模型API</span>
+                                 <span th:case="'5'">数据</span>
+                                  <span th:case="'6'">微服务</span>
+                            </span>
+                         </td>
+                        <td>
+
+                            <span th:text="${dataInfo.cname}"></span>
+                        </td>
+                        <td th:text="${dataInfo.contactNo}"></td>
+                        <td th:switch="${dataInfo.processFlag}">
+                            <span th:case="'0'">未受理</span>
+                            <span th:case="'1'">已受理</span>
+
+                        </td>
+                        <td th:switch="${dataInfo.processFlag}" th:data="${dataInfo.id}">
+                            <span th:case="'0'"><a href='javascript:;'class='accept-resource' th:data="${dataInfo.id}">受理</a></span>
+                            <span th:case="'1'" class="disabledProcess">受理</span>
+                        </td>
+
+                    </tr>
+                    </tbody>
+                    <tbody th:if="${#lists.isEmpty(offlinMeets)}">
+                    <tr>
+                        <td colspan="7">没有符合查询条件的记录！</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <input id="pageAllCount" type="hidden" th:value="${page.totalSize}" />
+            </div>
+        </div>
+    </div>
+

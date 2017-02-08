@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Matrix Admin</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link rel="stylesheet" href="../../static/lib/css/bootstrap.min.css" th:href="@{/lib/css/bootstrap.min.css}"/>
+	<link rel="stylesheet" href="../static/lib/css/common.css" th:href="@{/lib/css/common.css}">
+    <link rel="stylesheet" href="../../static/lib/css/validate.css" th:href="@{/lib/css/validate.css}"/>
+
+	<!--日历样式-->
+    <link rel="stylesheet" href="../static/lib/css/datapicker/font-awesome.min.css" th:href="@{/lib/css/datapicker/font-awesome.min.css}"/>
+    <link rel="stylesheet" href="../static/lib/css/datapicker/daterangepicker-bs3.css" th:href="@{/lib/css/datapicker/daterangepicker-bs3.css}"/>
+    <style>
+        #paySignDiv td,#order_detail td{border: 0px;height: 40px;background-color: white;font-size: 13px}
+        .td_right{padding-left: 20px !important;}
+        #paySignDiv table{ border:0px}
+        #paySignDiv input{ width:270px;margin-left: 25px;}
+
+        .control-label {
+            float: left;
+            width: 160px;
+            padding-top: 5px;
+            text-align: right;
+        }
+        .A_payWay {
+            display: block !important;
+            padding: 3px 20px !important;
+            clear: both !important;
+            font-weight: normal !important;
+            line-height: 20px !important;
+            color: #333 !important;
+            white-space: nowrap !important;
+        }
+        .detailS{margin-left:200px}
+        .dropdown-menu li {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid pt20">
+    <div class="container-title clearfix">
+        <h3 class="fl">订单查询</h3>
+    </div>
+    <form>
+    <table style="width: 100%" class="attr-table mt20">
+        <tr>
+            <td>
+                <label class="control-label control-label2">
+                    使用方:
+                </label>
+                <input type="text" id="userName" class="input-text150" />
+            </td>
+            <td>
+                <label class="control-label control-label2">
+                    订单状态:
+                </label>
+                <div class="dropdown-select fl">
+                    <input type="text" value="未付款" data="1" class="dropdown-toggle" data-toggle="dropdown" id="orderStatus" readonly/><span class="caret"></span>
+                    <ul class="dropdown-menu status" role="menu" aria-labelledby="dropdownMenu">
+                        <li data="1">
+                            <a tabindex = "-1" href="#" role="menuitem">未付款</a>
+                        </li>
+                        <li data="2">
+                            <a tabindex = "-1" href="#" role="menuitem">部分付款</a>
+                        </li>
+                        <li data="3">
+                            <a tabindex = "-1" href="#" role="menuitem">已付款</a>
+                        </li>
+                    </ul>
+                </div>
+                <!--<select class="input-select" id="orderStatus">-->
+                    <!--<option value="1" >未付款</option>-->
+                    <!--<option value="2">部分付款</option>-->
+                    <!--<option value="3">已付款</option>-->
+                <!--</select>-->
+            </td>
+            <td>
+                <label class="control-label control-label2">
+                    订单类型:
+                </label>
+                <div class="dropdown-select fl">
+                    <input type="text" value="线上订单" data="online" class="dropdown-toggle" data-toggle="dropdown" id="payType" readonly/><span class="caret"></span>
+                    <ul class="dropdown-menu status" role="menu" aria-labelledby="dropdownMenu">
+                        <li data="online">
+                            <a tabindex = "-1" href="#" role="menuitem">线上订单</a>
+                        </li>
+                        <li data="outline">
+                            <a tabindex = "-1" href="#" role="menuitem">线下订单</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!--<select class="input-select" id="payType">-->
+                    <!--<option value="online">线上订单</option>-->
+                    <!--<option value="outline">线下订单</option>-->
+                <!--</select>-->
+            </td>
+
+
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">
+                    订单号:
+                </label>
+                <input type="text" id="orderNum" class="input-text150" />
+            </td>
+            <td>
+                <label class="control-label">
+                    下单日期:
+                </label>
+                <input type="text" id="searchTimeRange" class="form-control" readonly>
+                <input type="hidden" id="orderStartTime" class="orderStartTime" name="startDate">
+                <input type="hidden" id="orderEndTime"class="orderEndTime" name="endDate">
+            </td>
+            <td>
+                <button type="button" id="findOrderList" class="query-btn">查询</button>
+                <button type="reset" id="reset" class="reset-btn "  onclick="doReset()" >重置</button>
+            </td>
+        </tr>
+
+    </table>
+    </form>
+    <div class="row-fluid" id="showOrderList">
+
+    </div>
+    <div id="pageAllCountOrder" class="mt20 text-right"></div>
+</div>
+<!--弹出层-->
+<!--订单详情-->
+<div id="orderInfoDiv"  style="display: none" class="layer-dialog">
+
+    <!--<div class="trueName" id="order_detail">-->
+        <!--<table class="window-table table-bordered table-condensed" id="test2" style="border:0px">-->
+            <!--<thead>-->
+            <!--<tr>-->
+                <!--<td class="tRBCC td_left" width="10%">订单号</td>-->
+                <!--<td class="tRBCD td_right order_detail-1">企业图谱详情</td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td class="tRBCC td_left" width="10%">使用方</td>-->
+                <!--<td class="tRBCD td_right order_detail-0" >小太阳</td>-->
+            <!--</tr>-->
+
+            <!--</thead>-->
+            <!--&lt;!&ndash;开口&ndash;&gt;-->
+            <!--<tbody class=" cont-c" id="openC">-->
+            <!--<tr>-->
+                <!--<td class="tRBCC td_left" width="10%">下单时间</td>-->
+                <!--<td class="tRBCD td_right order_detail-4" >201601</td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td class="tRBCC td_left" width="10%">订单状态</td>-->
+                <!--<td class="tRBCD td_right order_detail-6" >未付款</td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td class="tRBCC td_left" width="10%">订单金额</td>-->
+                <!--<td class="tRBCD td_right order_detail-2" >10万</td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td class="tRBCC td_left" width="10%">已付款金额</td>-->
+                <!--<td class="tRBCD td_right order_detail-3" >5万</td>-->
+            <!--</tr>-->
+            <!--</tbody>-->
+        <!--</table>-->
+    <!--</div>-->
+
+    <div class="trueName" id="order_detail">
+        <div class="control-group">
+            <label class="control-label new_style" for="detailServiceObject"><em class="red pd8">*</em>订单号：</label>
+            <div class="controls new_style_in">
+                <div class="detailS order_detail-1" id="detailServiceObject">个人,企业</div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label new_style" for="detailScope"><em class="red pd8">*</em>使用方：</label>
+            <div class="controls new_style_in">
+                <div class="detailS order_detail-0" id="detailScope">广州</div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label new_style" for="detailServiceCname"><em class="red pd8">*</em>下单时间：</label>
+            <div class="controls new_style_in">
+                <div class="detailS order_detail-4" id="detailServiceCname" >广州大数据</div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label new_style" for="detailServiceName"><em class="red pd8">*</em>订单状态：</label>
+            <div class="controls new_style_in">
+                <div class="detailS order_detail-6" id="detailServiceName">2012-12-12</div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label new_style" for="detailDescription"><em class="red pd8">*</em>订单金额：</label>
+            <div class="controls new_style_in ">
+                <div class="detailS order_detail-2" id="detailDescription"></div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label new_style" for="detailIconUrl"><em class="red pd8">*</em>已付款金额：</label>
+            <div class="controls new_style_in" id="serviceImg">
+                <div class="detailS order_detail-3" id="detailIconUrl"></div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <!--开口-->
+        <div class="trueName" id="openCont">
+            <table class="table table-bordered table-striped with-check" >
+                <thead>
+                <tr><td colspan="7" style="text-align:left;">采购资源清单</td></tr>
+                <tr>
+                    <!--<th><i class="icon-resize-vertical"></i></th>-->
+                    <th width="15%">资源类型</th>
+                    <th width="15%">资源名称</th>
+                    <th width="10%">计费方式</th>
+                    <th width="15%">使用期限起</th>
+                    <th width="15%">使用期限止</th>
+                    <th width="10%">使用次数</th>
+                    <th width="15%">金额</th>
+                </tr>
+                </thead>
+                <tbody id="orderDetailList">
+                <tr >
+                    <td>API</td>
+                    <td>企业图谱详情查询</td>
+                    <td>1元/次</td>
+                    <td>201601</td>
+                    <td>201612</td>
+                    <td>100</td>
+                    <td>100</td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--合同详情-->
+<div id="contInfoDiv"  style="display: none" class="layer-dialog" >
+    <div class="trueName">
+        <table class="window-table table-bordered table-condensed" id="div_add">
+            <thead>
+            <tr>
+                <td class="tRBCC" width="10%">订单号</td>
+                <td class="tRBCD  orderNum ">企业图谱详情</td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">使用方</td>
+                <td class="tRBCD userName">小太阳</td>
+            </tr>
+
+            </thead>
+            <!--开口-->
+            <tbody class=" cont-c" id="openC">
+            <tr>
+                <td class="tRBCC" width="10%">下单时间</td>
+                <td class="tRBCD orderTime">201601</td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">订单状态</td>
+                <td class="tRBCD orderStatus">未付款</td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">订单金额</td>
+                <td class="tRBCD orderCash">10万</td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">已付款金额</td>
+                <td class="tRBCD  payCash">5万</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <!--开口-->
+        <div class="trueName" id="openCont">
+            <table class="table table-bordered table-striped with-check">
+                <thead>
+                <tr><td colspan="7">采购资源清单</td></tr>
+                <tr>
+                    <!--<th><i class="icon-resize-vertical"></i></th>-->
+                    <th width="15%">资源类型</th>
+                    <th width="15%">资源名称</th>
+                    <th width="10%">计费方式</th>
+                    <th width="15%">使用期限起</th>
+                    <th width="15%">使用期限止</th>
+                    <th width="10%">使用次数</th>
+                    <th width="15%">金额</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>API</td>
+                    <td>企业图谱详情查询</td>
+                    <td>1元/次</td>
+                    <td>201601</td>
+                    <td>201612</td>
+                    <td>100</td>
+                    <td>100</td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--付款登记-->
+<div id="paySignDiv"  style="display: none" class="layer-dialog">
+    <div class="trueName">
+        <table class="window-table table-bordered table-condensed" id="test">
+            <tr>
+                <td class="tRBCC" width="10%">订单号 :</td>
+                <td class="tRBCD">
+                    <input disabled type="text"  name="orderNum" class="input-notice input-notice-7"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">使用方 :</td>
+                <td class="tRBCD">
+                    <input disabled name="payer" type="text" class="input-notice input-notice-6"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">订单金额 :</td>
+                <td class="tRBCD">
+                    <input disabled name="orderNum" type="text" class="input-notice input-notice-4"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">结算金额 :</td>
+                <td class="tRBCD">
+                    <input  disabled name="payCount" type="text" class="input-notice input-notice-3"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">已支付金额 :</td>
+                <td class="tRBCD">
+                    <input name="orderNum"  disabled type="text" value="0" class="input-notice input-notice-2"/>
+
+                </td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">
+                    <label class="control-label new_style" for="detailDescription"><em class="red pd8">*</em>本次付款金额 :</label>
+                </td>
+                <td class="tRBCD">
+                    <input  style="margin-top: 10px" name="payCount" type="text" id="payCount" placeholder="请输入付款金额" class="input-notice input-notice-1"/>
+                 </td >
+            </tr>
+            <tr style="display: none;position: relative;height: 0;" id="error_td" >
+                <td style="height: 0;" colspan="2">
+                    <label style="color: red;position: absolute;top: -10px;left: 200px;z-index: 1;" class="error" for="payCount">输入金额不正确！</label>
+                </td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">付款方式 :</td>
+                <td class="tRBCD">
+                    <div class="dropdown-select fl">
+                        <input style="width:265px" type="text" value="现金" data="online" class="dropdown-toggle payWay" data-toggle="dropdown" id="payType" readonly/><span class="caret"></span>
+                        <ul style="left:25px;width:277px" class="dropdown-menu status" role="menu" aria-labelledby="dropdownMenu">
+                            <li data="1">
+                                <a class="A_payWay" tabindex = "-1" href="#" role="menuitem">现金</a>
+                            </li>
+                            <li data="2">
+                                <a class="A_payWay" tabindex = "-1" href="#" role="menuitem">支票</a>
+                            </li>
+                            <li data="3">
+                                <a class="A_payWay" tabindex = "-1" href="#" role="menuitem">汇票</a>
+                            </li>
+                            <li data="4">
+                                <a class="A_payWay" tabindex = "-1" href="#" role="menuitem">转账</a>
+                            </li>
+                            <li data="5">
+                                <a class="A_payWay" tabindex = "-1" href="#" role="menuitem">其他</a>
+                            </li>
+
+                        </ul>
+                    </div>
+
+
+                    <!--<select name="payType" class="payWay">-->
+                        <!--<option value="1">现金</option>-->
+                        <!--<option value="2">支票</option>-->
+                        <!--<option value="3">汇票</option>-->
+                        <!--<option value="4">转账</option>-->
+                        <!--<option value="5">其他</option>-->
+                    <!--</select>-->
+                </td>
+            </tr>
+            <tr>
+                <td class="tRBCC" width="10%">付款时间 :</td>
+                <td class="tRBCD">
+                    <input type="text" style="width: 265px;" id="payTime" class="Wdate form-control" readonly />
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- 公共部分 -->
+
+<script src="../../static/lib/js/jquery.1.11.1.min.js" th:src="@{/lib/js/jquery.1.11.1.min.js}"></script>
+<script th:src="${upms.url}+ '/scripts/common.js' "></script>
+<script th:src="${upms.url}+'/scripts/createArea.js'"></script>
+<!--日历js-->
+<script src="../../static/lib/dataPicker/moment.js" th:src="@{/lib/dataPicker/moment.js}"></script>
+<script src="../../static/lib/dataPicker/daterangepicker.js" th:src="@{/lib/dataPicker/daterangepicker.js}"></script>
+<!-- 弹出框 -->
+<script src="../../static/lib/layer/layer.js" th:src="@{/lib/layer/layer.js}"></script>
+<!--<script src="../../static/lib/layPage/laypage.js" th:src="@{/lib/layPage/laypage.js}"></script>-->
+<script src="../../static/lib/js/bootstrap.min.js" th:src="@{/lib/js/bootstrap.min.js}"></script>
+<script src="../../static/js/dataList.js" th:src="@{/js/dataList.js}"></script>
+<script type="text/javascript" th:src="${upms.url}+'/assets/layPage/src/laypage.dev.js'"></script>
+<script th:inline="javascript">
+    $(function () {
+        DataList();
+    });
+
+
+    function doReset(){
+        $("#orderStatus").attr("data","1")
+        $("#payType").attr("data","online")
+        $("#orderStartTime").val("");
+        $("#orderEndTime").val("");
+        $("#orderNum").val("");
+    }
+
+    function showDetail(obj){
+        var orderId = $(obj).attr("name");
+        $(".order_detail-"+1).attr("html",$(obj).text() )
+      //  $(".order_detail-"+1).text($(obj).text())
+        $(".order_detail-"+1).html($(obj).text())
+        for(i=0;i<7;i++){
+
+            if(i==1||i==5 ) continue
+            $(".order_detail-"+i).html( ($(obj).parent().nextAll()[i]).innerText)
+        }
+        ajaxCommonFun({
+            type: 'GET',
+            url: '/order/getOrderDetail.do',
+            data: {
+                "orderId":orderId
+            },
+            success: function (t) {
+                $("#orderDetailList").html("");
+                t.forEach(function(e){
+                    var useNum;
+                    if(e.useNum==-1){
+                        useNum="无限使用"
+                    }else{useNum=e.useNum}
+                    $("#orderDetailList").append('<tr>'+
+                            '<td >'+e.sourceType+'</td>'+
+                            '<td >'+e.sourceName+'</td>'+
+                            '<td >'+e.priceTime+'</a></td>'+
+                            '<td >'+e.startTime+'</td>'+
+                            '<td >'+e.endTime+'</td>'+
+                            '<td >'+useNum+'</td>'+
+                            '<td >'+e.cash+'</td>'+
+                            '</tr>');
+                })
+
+                layer.open({
+                    type: 1,
+                    btn: ['关闭'],
+                    title: '结算单详情',
+                    shade:  0.1, //遮罩透明度,
+                    shadeClose: true,
+                    area: ['760px', '450px'],
+                    content: $('#orderInfoDiv'), //捕获的元素
+                    btn1:function(index,layero){
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+
+
+    }
+
+    function renderPages(isFirst,num) {
+        getHtml(isFirst,num)
+    }
+</script>
+ 
+</body>
+</html>
